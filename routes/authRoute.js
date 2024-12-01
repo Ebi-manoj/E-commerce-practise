@@ -1,21 +1,27 @@
 import express from 'express';
 import {
+  blockUser,
   createUser,
   delteUser,
   getAllUsers,
   getUser,
+  handlerefreshToken,
   loginUser,
+  unBlockUser,
   updateuser,
 } from '../controller/userCtrl.js';
-import { authMiddleware } from '../middlewares/authMiddleware.js';
+import { authMiddleware, isAdmin } from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
 
 router.post('/register', createUser);
 router.post('/login', loginUser);
-router.get('/all-users', getAllUsers);
-router.get('/:id', authMiddleware, getUser);
-router.put('/:id', updateuser);
+router.post('/refresh', handlerefreshToken);
+router.get('/all-users', authMiddleware, isAdmin, getAllUsers);
+router.get('/:id', authMiddleware, isAdmin, getUser);
+router.put('/edit-user', authMiddleware, updateuser);
+router.put('/block-user/:id', authMiddleware, isAdmin, blockUser);
+router.put('/unblock-user/:id', authMiddleware, isAdmin, unBlockUser);
 router.delete('/:id', delteUser);
 
 export default router;
