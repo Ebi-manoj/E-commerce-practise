@@ -2,6 +2,7 @@ import express from 'express';
 import dotnev from 'dotenv';
 import connectDB from '../e-commerce_practise/config/db.js';
 import authRoute from './routes/authRoute.js';
+import productRoute from './routes/productRoute.js';
 import { errorHandler, notFound } from './middlewares/errorHandler.js';
 import cookieParser from 'cookie-parser';
 
@@ -19,6 +20,7 @@ app.get('/', (req, res) => {
 });
 
 app.use('/api/user', authRoute);
+app.use('/api/product', productRoute);
 
 app.use(notFound);
 app.use(errorHandler);
