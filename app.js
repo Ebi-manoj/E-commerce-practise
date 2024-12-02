@@ -5,6 +5,7 @@ import authRoute from './routes/authRoute.js';
 import productRoute from './routes/productRoute.js';
 import { errorHandler, notFound } from './middlewares/errorHandler.js';
 import cookieParser from 'cookie-parser';
+import morgan from 'morgan';
 
 dotnev.config();
 const PORT = process.env.PORT || 4000;
@@ -14,6 +15,7 @@ connectDB();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+app.use(morgan('dev'));
 
 app.get('/', (req, res) => {
   res.send(`Welcome to Home page`);
