@@ -2,6 +2,7 @@ import express from 'express';
 import {
   createProduct,
   deleteProduct,
+  filterDocuments,
   getAllProduct,
   getaProduct,
   updateProduct,
@@ -14,5 +15,6 @@ router.put('/:id', authMiddleware, isAdmin, updateProduct);
 router.delete('/:id', authMiddleware, isAdmin, deleteProduct);
 router.get('/:id', getaProduct);
 router.get('/', getAllProduct);
+router.get('/', filterDocuments);
 
 export default router;

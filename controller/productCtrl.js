@@ -69,3 +69,72 @@ export const deleteProduct = asyncHandler(async (req, res) => {
     throw new Error(error);
   }
 });
+
+////////////////////////////////////////////////////////////////////////////
+////////////FILTERING AND QUERYING
+
+export const filterDocuments = asyncHandler(async (req, res) => {
+  console.log(req.query);
+
+  try {
+    const {
+      title,
+      priceMax,
+      priceMin,
+      category,
+      brand,
+      color,
+      page = 1,
+      limit = 3,
+      sort = '-createdAt',
+    } = req.query;
+    const match = {
+      ...(title && { title: { $regex: title, $options: 'i' } }),
+      ...(category && { category }),
+      ...(brand && { brand }),
+      ...(color && { color }),
+      ...(priceMax || priceMin
+        ? {
+            price: {
+              ...(priceMax && { $lte: Number(priceMax) }),
+              ...(priceMin && { $gte: Number(priceMin) }),
+            },
+          }
+        : {}),
+    };
+
+    const sortOrder = sort.startsWith('-') ? -1 : 1;
+    const sortField = sort.replace('-', '');
+    const skip = (page - 1) * limit;
+
+    const pipiline = [
+      { $match: match },
+      { $sort: { [sortField]: sortOrder } },
+      { $skip: skip },
+      { $limit: Number(limit) },
+      {
+        $project: {
+          title: 1,
+          slug: 1,
+          description: 1,
+          price: 1,
+          category: 1,
+          brand: 1,
+          color: 1,
+        },
+      },
+    ];
+
+    const products = await Product.aggregate(pipiline);
+    const totalCount = await Product.countDocuments(match);
+
+    res.json({
+      products,
+      totalCount,
+      totalPages: Math.ceil(totalCount / limit),
+      currentPage: Number(page),
+    });
+  } catch (error) {
+    throw new Error(error);
+  }
+});

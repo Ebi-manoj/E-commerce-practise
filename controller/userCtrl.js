@@ -27,6 +27,7 @@ export const loginUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
   // checking user exists
   const findUser = await User.findOne({ email });
+  console.log(await findUser.isPasswordMatched(password));
 
   if (findUser && (await findUser.isPasswordMatched(password))) {
     const refreshToken = generateRefreshToken(findUser?._id);
@@ -160,9 +161,9 @@ export const handlerefreshToken = asyncHandler(async (req, res) => {
   try {
     const decoded = jwt.verify(refreshToken, process.env.JWT_SECRETKEY);
     const user = await User.findById(decoded?.id);
-    if (!user || User.refreshToken !== refreshToken)
+    if (!user || user.refreshToken !== refreshToken)
       throw new Error('Invalid refersh Token');
-    const accessToken = generateToken(User._id);
+    const accessToken = generateToken(user._id);
     res.json({ token: accessToken });
   } catch (error) {
     throw new Error(error);
@@ -173,6 +174,6 @@ export const handlerefreshToken = asyncHandler(async (req, res) => {
 ///Logout Functionality
 
 export const logoutUser = asyncHandler(async (req, res) => {
-  res.clearCookie(refreshToken, { httpOnly: true });
+  res.clearCookie('refreshToken', { httpOnly: true });
   res.status(200).json({ message: 'Logout succesfully' });
 });
