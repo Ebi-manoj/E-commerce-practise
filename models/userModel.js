@@ -43,13 +43,21 @@ const UserSchema = new mongoose.Schema(
     },
     address: [{ type: ObjectId, ref: 'Address' }],
     wishlist: [{ type: ObjectId, ref: 'Wishlist' }],
+    resetToken: {
+      type: String,
+    },
+    resetTokenExpiry: {
+      type: Date,
+    },
   },
+
   {
     timestamps: true,
   }
 );
 
 UserSchema.pre('save', async function (next) {
+  if (!this.isModified('password')) return next();
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
 });

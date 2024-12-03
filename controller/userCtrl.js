@@ -3,6 +3,8 @@ import User from '../models/userModel.js';
 import asyncHandler from 'express-async-handler';
 import { validateId } from '../utilitis/validate-id.js';
 import jwt from 'jsonwebtoken';
+import { genrateResetToken } from '../config/crypto.js';
+import { sendEmail } from './send-emailCtrl.js';
 
 //////////////////////////////////////////////
 // create User
@@ -28,6 +30,8 @@ export const loginUser = asyncHandler(async (req, res) => {
   // checking user exists
   const findUser = await User.findOne({ email });
   console.log(await findUser.isPasswordMatched(password));
+
+  if (!findUser) return res.status(401).json({ message: 'User Not found' });
 
   if (findUser && (await findUser.isPasswordMatched(password))) {
     const refreshToken = generateRefreshToken(findUser?._id);
@@ -176,4 +180,48 @@ export const handlerefreshToken = asyncHandler(async (req, res) => {
 export const logoutUser = asyncHandler(async (req, res) => {
   res.clearCookie('refreshToken', { httpOnly: true });
   res.status(200).json({ message: 'Logout succesfully' });
+});
+
+///////////////////////////////////////////////////////////////////
+/////Reset password
+
+export const resetPasswordRequest = asyncHandler(async (req, res) => {
+  const { email } = req.body;
+  try {
+    const findUser = await User.findOne({ email });
+    if (!findUser)
+      return res.status(401).json({ messge: 'User not found on this Email' });
+    const resetToken = genrateResetToken();
+    const resetTokenExpiry = Date.now() + 60 * 60 * 1000;
+
+    findUser.resetToken = resetToken;
+    findUser.resetTokenExpiry = resetTokenExpiry;
+    await findUser.save();
+
+    sendEmail(findUser.email, resetToken);
+    res.status(200).json({ message: 'Reset link has been sent to you Email' });
+  } catch (error) {
+    throw new Error(error);
+  }
+});
+
+export const resetPassword = asyncHandler(async (req, res) => {
+  const { token } = req.params;
+  const { password } = req.body;
+
+  try {
+    const findUser = await User.findOne({
+      resetToken: token,
+      resetTokenExpiry: { $gt: Date.now() },
+    });
+    if (!findUser) return res.status(401).json({ message: 'User not found' });
+    findUser.password = password;
+    findUser.resetToken = undefined;
+    findUser.resetTokenExpiry = undefined;
+    await findUser.save();
+
+    res.status(200).json({ message: 'Password has been changed' });
+  } catch (error) {
+    throw new Error(error);
+  }
 });
