@@ -7,6 +7,7 @@ import {
   getUser,
   handlerefreshToken,
   loginUser,
+  logoutUser,
   resetPassword,
   resetPasswordRequest,
   unBlockUser,
@@ -25,6 +26,7 @@ router.put('/edit-user', authMiddleware, updateuser);
 router.put('/block-user/:id', authMiddleware, isAdmin, blockUser);
 router.put('/unblock-user/:id', authMiddleware, isAdmin, unBlockUser);
 router.delete('/:id', delteUser);
+router.get('/', logoutUser);
 router.post('/reset-password', authMiddleware, resetPasswordRequest);
 router.put('/reset-password/:token', resetPassword);
 
