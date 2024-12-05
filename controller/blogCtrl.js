@@ -72,3 +72,55 @@ export const deleteBlog = asyncHandler(async (req, res) => {
     throw new Error(error);
   }
 });
+
+////////////////////////////////////////////////////////////////
+//////LIKE THE BLOG
+
+export const likeBlog = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const userId = req?.user?._id;
+  validateId(id);
+  try {
+    const blog = await Blog.findById(id);
+    // check user is present in liked array
+    const isLiked = blog.likes.includes(userId);
+
+    if (isLiked) {
+      // remove the user
+      blog.likes = blog.likes.filter(id => id.toString() !== userId.toString());
+    } else {
+      blog.likes.push(userId);
+      // remove from dislike[]
+      blog.disLikes = blog.disLikes.filter(
+        id => id.toString() === userId.toString()
+      );
+    }
+    await blog.save();
+    res.json(blog);
+  } catch (error) {
+    throw new Error(error);
+  }
+});
+
+export const dislikeBlog = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const userId = req?.user?._id;
+  validateId(id);
+  try {
+    const blog = await Blog.findById(id);
+    const isDisliked = blog.disLikes.includes(userId);
+
+    if (isDisliked) {
+      blog.disLikes = blog.disLikes.filter(
+        id => id.toString() !== userId.toString()
+      );
+    } else {
+      blog.disLikes.push(userId);
+      blog.likes = blog.likes.filter(id => id.toString() !== userId.toString());
+    }
+    await blog.save();
+    res.json(blog);
+  } catch (error) {
+    throw new Error(error);
+  }
+});
