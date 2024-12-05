@@ -225,3 +225,37 @@ export const resetPassword = asyncHandler(async (req, res) => {
     throw new Error(error);
   }
 });
+
+//////////////////////////////////////////////////////////////////////////
+//////////ADD PRODUCT TO WISHLIST
+
+export const addToWishlist = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  validateId(id);
+  const userId = req?.user?._id;
+  try {
+    const findUser = await User.findById(userId);
+    const wishlistTrue = findUser.wishlist.includes(id);
+
+    const updated = wishlistTrue
+      ? { $pull: { wishlist: id } }
+      : { $addToSet: { wishlist: id } };
+
+    const updatedUser = await User.findByIdAndUpdate(userId, updated, {
+      new: true,
+    });
+    res.json(updatedUser);
+
+    // if (wishlistTrue) {
+    //   findUser.wishlist = findUser.wishlist.filter(
+    //     product => product.toString() !== id.toString()
+    //   );
+    // } else {
+    //   findUser.wishlist.push(id);
+    // }
+    // await findUser.save();
+    // res.json(findUser);
+  } catch (error) {
+    throw new Error(error);
+  }
+});

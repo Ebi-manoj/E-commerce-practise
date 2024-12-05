@@ -4,6 +4,8 @@ import connectDB from '../e-commerce_practise/config/db.js';
 import authRoute from './routes/authRoute.js';
 import productRoute from './routes/productRoute.js';
 import blogRoute from './routes/blogRoute.js';
+import pCategoryroute from './routes/prodCategoryRoute.js';
+import blogCategoryRoute from './routes/blogCategoryRoute.js';
 import { errorHandler, notFound } from './middlewares/errorHandler.js';
 import cookieParser from 'cookie-parser';
 import morgan from 'morgan';
@@ -25,6 +27,8 @@ app.get('/', (req, res) => {
 app.use('/api/user', authRoute);
 app.use('/api/product', productRoute);
 app.use('/api/blog', blogRoute);
+app.use('/api/productcategory', pCategoryroute);
+app.use('/api/blogcategory', blogCategoryRoute);
 
 app.use(notFound);
 app.use(errorHandler);

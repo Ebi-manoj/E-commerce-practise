@@ -5,19 +5,19 @@ import User from '../models/userModel.js';
 /////////////////////////////////////////////////////////////
 //Basic Auth
 export const authMiddleware = asyncHandler(async (req, res, next) => {
-  let token;
-  if (req?.headers?.authorization?.startsWith('Bearer')) {
-    token = req.headers.authorization.split(' ')[1];
-    try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRETKEY);
-      const user = await User.findById(decoded?.id).select('-password');
-      req.user = user;
-      next();
-    } catch (error) {
-      throw new Error('Authorizations expires');
+  const token = req?.cookies.refreshToken;
+  if (!token) return res.status(401).json({ message: 'No Token Attached' });
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRETKEY);
+    const user = await User.findById(decoded?.id).select('-password');
+    req.user = user;
+    next();
+  } catch (error) {
+    if (error.name === 'TokenExpiredError') {
+      return res.status(401).json({ message: 'Authorization token expired' });
     }
-  } else {
-    throw new Error('there is no token attached');
+    return res.status(401).json({ message: 'Unauthorized, invalid token' });
   }
 });
 

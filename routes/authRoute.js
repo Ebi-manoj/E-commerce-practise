@@ -1,5 +1,6 @@
 import express from 'express';
 import {
+  addToWishlist,
   blockUser,
   createUser,
   delteUser,
@@ -29,5 +30,6 @@ router.delete('/:id', delteUser);
 router.get('/', logoutUser);
 router.post('/reset-password', authMiddleware, resetPasswordRequest);
 router.put('/reset-password/:token', resetPassword);
+router.put('/:id/wishlist', authMiddleware, addToWishlist);
 
 export default router;
