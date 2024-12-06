@@ -1,5 +1,6 @@
 import asyncHandler from 'express-async-handler';
 import { Product } from '../models/productModel.js';
+import { validateId } from '../utilitis/validate-id.js';
 
 /////////////////////////////////////////////////////////////////////
 /////////CREATE A PRODUCT
@@ -134,6 +135,43 @@ export const filterDocuments = asyncHandler(async (req, res) => {
       totalPages: Math.ceil(totalCount / limit),
       currentPage: Number(page),
     });
+  } catch (error) {
+    throw new Error(error);
+  }
+});
+
+///////////////////////////////////////////////////////////////////////////////
+//////////////////ADD RATINGS TO THE PRODUCT
+
+export const addRatings = asyncHandler(async (req, res) => {
+  const productId = req.params.id;
+  const userId = req.user._id;
+  const { star, comment } = req.body;
+  validateId(productId);
+
+  try {
+    const product = await Product.findById(productId);
+    ////check already rated or not
+    const alreadyRated = product.ratings.find(
+      rating => rating.postedby.toString() === userId.toString()
+    );
+    if (alreadyRated) {
+      alreadyRated.star = star;
+      alreadyRated.comment = comment;
+    } else {
+      product.ratings.push({ star, comment, postedby: userId });
+    }
+
+    // update total ratings
+    const totalStars = product.ratings.reduce(
+      (acc, curr) => acc + curr.star,
+      0
+    );
+    const totalratings = product.ratings.length;
+    product.totalRatings = Number(totalStars / totalratings).toFixed(2);
+
+    await product.save();
+    res.json(product);
   } catch (error) {
     throw new Error(error);
   }

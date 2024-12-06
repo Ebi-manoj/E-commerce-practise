@@ -1,5 +1,6 @@
 import express from 'express';
 import {
+  addRatings,
   createProduct,
   deleteProduct,
   filterDocuments,
@@ -16,5 +17,6 @@ router.delete('/:id', authMiddleware, isAdmin, deleteProduct);
 router.get('/:id', getaProduct);
 router.get('/', getAllProduct);
 router.get('/', filterDocuments);
+router.put('/:id/addratings', authMiddleware, addRatings);
 
 export default router;
