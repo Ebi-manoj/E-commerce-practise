@@ -60,7 +60,13 @@ export const productImgResize = async (req, res, next) => {
           throw cloudinaryError; // Stop execution if Cloudinary upload fails
         }
 
-        fs.unlink(processedFile);
+        try {
+          await fs.unlink(file.path);
+          await fs.unlink(processedFile);
+          console.log(`File deleted: ${processedFile}`);
+        } catch (unlinkError) {
+          console.error('Error deleting file:', unlinkError);
+        }
       })
     );
 
