@@ -42,7 +42,7 @@ const UserSchema = new mongoose.Schema(
       type: String,
     },
     address: [{ type: ObjectId, ref: 'Address' }],
-    wishlist: [{ type: ObjectId, ref: 'Wishlist' }],
+    wishlist: [{ type: ObjectId, ref: 'product' }],
     resetToken: {
       type: String,
     },

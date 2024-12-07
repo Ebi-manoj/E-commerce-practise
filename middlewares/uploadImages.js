@@ -61,7 +61,6 @@ export const productImgResize = async (req, res, next) => {
         try {
           await fs.unlink(file.path);
           await fs.unlink(processedFile);
-          console.log(`File deleted: ${processedFile}`);
         } catch (unlinkError) {
           console.error('Error deleting file:', unlinkError);
         }

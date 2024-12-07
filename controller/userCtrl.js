@@ -259,3 +259,16 @@ export const addToWishlist = asyncHandler(async (req, res) => {
     throw new Error(error);
   }
 });
+
+//////////////////////////////////////////////////////////////////
+////////////GET WISHLIST
+
+export const getWishlist = asyncHandler(async (req, res) => {
+  const { _id } = req.user;
+  try {
+    const findUser = await User.findById(_id).populate('wishlist');
+    res.json(findUser.wishlist);
+  } catch (error) {
+    throw new Error(error);
+  }
+});
