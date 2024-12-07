@@ -21,7 +21,7 @@ router.get('/', getAllProduct);
 router.get('/', filterDocuments);
 router.put('/:id/addratings', authMiddleware, addRatings);
 router.post(
-  '/:id/upload-images',
+  '/:id/upload-images/product',
   authMiddleware,
   isAdmin,
   uploadPhoto.array('images', 5),

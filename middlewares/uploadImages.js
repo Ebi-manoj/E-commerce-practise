@@ -52,12 +52,10 @@ export const productImgResize = async (req, res, next) => {
           .toFile(processedFile);
 
         try {
-          const result = await cloudinaryUpload(processedFile);
-          console.log('Cloudinary upload result:', result); // Log full result object
+          const result = await cloudinaryUpload(processedFile, 'products');
           req.body.images.push(result.url);
         } catch (cloudinaryError) {
-          console.error('Error uploading to Cloudinary:', cloudinaryError);
-          throw cloudinaryError; // Stop execution if Cloudinary upload fails
+          throw cloudinaryError;
         }
 
         try {
@@ -87,8 +85,9 @@ export const blogImgResize = async (req, res, next) => {
           .toFormat('jpeg')
           .jpeg({ quality: 90 })
           .toFile(processedFile);
-        const result = await cloudinaryUpload(processedFile);
+        const result = await cloudinaryUpload(processedFile, 'blogs');
         req.body.images.push(result.url);
+        await fs.unlink(file.path);
         await fs.unlink(processedFile);
       })
     );

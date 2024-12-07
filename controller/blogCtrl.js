@@ -124,3 +124,21 @@ export const dislikeBlog = asyncHandler(async (req, res) => {
     throw new Error(error);
   }
 });
+
+/////////////////////////////////////////////////////////////////////
+////////////UPLOAD BLOG IMAGES
+
+export const uploadBlogImages = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  validateId(id);
+  try {
+    const findBlog = await Blog.findById(id);
+    console.log(req.body);
+
+    findBlog.images.push(...req.body.images);
+    await findBlog.save();
+    res.json(findBlog);
+  } catch (error) {
+    throw new Error({ message: 'Error in Uploading images', error });
+  }
+});

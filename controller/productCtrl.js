@@ -186,8 +186,6 @@ export const uploadProductImages = asyncHandler(async (req, res) => {
   try {
     const findProduct = await Product.findById(id);
 
-    console.log(req.body.images);
-
     findProduct.images.push(...req.body.images);
 
     await findProduct.save();
