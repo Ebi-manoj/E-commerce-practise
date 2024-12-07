@@ -38,9 +38,7 @@ const BlogSchema = new mongoose.Schema(
         ref: 'User',
       },
     ],
-    image: {
-      type: String,
-    },
+    image: [],
     author: {
       type: String,
       default: 'admin',

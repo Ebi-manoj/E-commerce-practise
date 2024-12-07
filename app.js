@@ -12,6 +12,12 @@ import cookieParser from 'cookie-parser';
 import morgan from 'morgan';
 
 dotnev.config();
+console.log(
+  'Cloudinary Config:',
+  process.env.CLOUD_NAME,
+  process.env.API_KEY,
+  process.env.API_SECRET
+);
 const PORT = process.env.PORT || 4000;
 
 const app = express();

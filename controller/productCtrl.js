@@ -176,3 +176,19 @@ export const addRatings = asyncHandler(async (req, res) => {
     throw new Error(error);
   }
 });
+
+/////////////////////////////////////////////////////
+///////////UPLOAD IMAGES
+
+export const uploadProductImages = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  validateId(id);
+  try {
+    const findProduct = await Product.findById(id);
+    findProduct.images.push(req.body.images);
+    await findProduct.save();
+    res.json(findProduct);
+  } catch (error) {
+    throw new Error(error);
+  }
+});
