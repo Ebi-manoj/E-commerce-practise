@@ -1,4 +1,5 @@
 import { Cart } from '../models/cartModel.js';
+import { Coupon } from '../models/couponModel.js';
 import { Product } from '../models/productModel.js';
 import { validateId } from '../utilitis/validate-id.js';
 import asyncHandler from 'express-async-handler';
@@ -73,6 +74,49 @@ export const removeFromCart = asyncHandler(async (req, res) => {
     cart.product.splice(index, 1);
     await cart.save();
     res.json(cart);
+  } catch (error) {
+    throw new Error(error);
+  }
+});
+
+//////////////////////////////////////////////////////////////
+////////////GET ALL ITEMS IN CART
+export const getAllCart = asyncHandler(async (req, res) => {
+  const id = req.user._id;
+  validateId(id);
+  try {
+    const findCart = await Cart.findOne({ orderby: id }).populate(
+      'product.product',
+      'title description price'
+    );
+    if (!findCart)
+      return res.status(500).json({ message: 'You cart is empty' });
+    res.json(findCart);
+  } catch (error) {
+    throw new Error(error);
+  }
+});
+
+///////////////////////////////////////////////////////////////////////
+////APPLY A COUPON
+
+export const applyCoupon = asyncHandler(async (req, res) => {
+  const couponName = req.body.name;
+  const userId = req.user._id;
+  validateId(userId);
+  try {
+    const coupon = await Coupon.findOne({ name: couponName });
+    console.log(new Date());
+
+    if (!coupon || coupon.expiry < new Date())
+      return res.status(200).json({ message: 'Coupon expired or Invalid' });
+    const cart = await Cart.findOne({ orderby: userId });
+    if (!cart) return res.status(404).json({ message: 'Cart is empty' });
+
+    const discount = cart.cartTotal * (coupon.discount / 100);
+    cart.totalAfterDiscount = cart.cartTotal - discount;
+    cart.save();
+    res.status(200).json({ message: 'Coupon applied', data: cart });
   } catch (error) {
     throw new Error(error);
   }
