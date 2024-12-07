@@ -6,10 +6,10 @@ const cartSchema = new mongoose.Schema(
         product: {
           type: mongoose.Schema.Types.ObjectId,
           ref: 'product',
-          count: Number,
-          color: String,
-          price: Number,
         },
+        quantity: Number,
+        color: String,
+        price: Number,
       },
     ],
     cartTotal: Number,
