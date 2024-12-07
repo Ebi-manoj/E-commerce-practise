@@ -10,14 +10,15 @@ cloudinary.config({
 });
 
 export const cloudinaryUpload = async file => {
-  return new Promise((resolve, reject) => {
-    cloudinary.uploader.upload(
-      file,
-      { resource_type: 'auto' },
-      (error, result) => {
-        if (error) reject(error);
-        resolve({ url: result.secure_url });
-      }
-    );
-  });
+  try {
+    const result = await cloudinary.uploader.upload(file, {
+      resource_type: 'auto', // Automatically detect file type (image, video, etc.)
+    });
+
+    console.log('Cloudinary Upload Success:', result); // Log the full result for debugging
+    return { url: result.secure_url }; // Return the secure URL after uploading
+  } catch (error) {
+    console.error('Error uploading to Cloudinary:', error); // Log the error for debugging
+    throw new Error('Cloudinary upload failed: ' + error.message); // Throw the error for proper handling
+  }
 };

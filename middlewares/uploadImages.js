@@ -9,7 +9,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const multerStorage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, path.join(__dirname, '../public/images'));
+    cb(null, path.join(__dirname, '../public/images/'));
   },
   filename: function (req, file, cb) {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
@@ -51,9 +51,16 @@ export const productImgResize = async (req, res, next) => {
           .jpeg({ quality: 90 })
           .toFile(processedFile);
 
-        const result = await cloudinaryUpload(processedFile);
-        req.body.images.push(result.url);
-        await fs.unlink(processedFile);
+        try {
+          const result = await cloudinaryUpload(processedFile);
+          console.log('Cloudinary upload result:', result); // Log full result object
+          req.body.images.push(result.url);
+        } catch (cloudinaryError) {
+          console.error('Error uploading to Cloudinary:', cloudinaryError);
+          throw cloudinaryError; // Stop execution if Cloudinary upload fails
+        }
+
+        fs.unlink(processedFile);
       })
     );
 

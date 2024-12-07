@@ -185,7 +185,11 @@ export const uploadProductImages = asyncHandler(async (req, res) => {
   validateId(id);
   try {
     const findProduct = await Product.findById(id);
-    findProduct.images.push(req.body.images);
+
+    console.log(req.body.images);
+
+    findProduct.images.push(...req.body.images);
+
     await findProduct.save();
     res.json(findProduct);
   } catch (error) {
